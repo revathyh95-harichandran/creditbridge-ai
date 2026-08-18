@@ -44,37 +44,27 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### 1. Authenticate with Kaggle
+### 1. Get the data
 
-The dataset comes from a Kaggle *competition*, so you must have a Kaggle account and accept
-the competition rules once, in the browser, before the API will serve the files:
-<https://www.kaggle.com/competitions/home-credit-default-risk/rules>
+Download `application_train.csv`, `bureau.csv`, and `previous_application.csv` from
+[Home Credit Default Risk](https://www.kaggle.com/competitions/home-credit-default-risk/data)
+(requires a Kaggle account and accepting the competition rules) and place them in `data/raw/`.
 
-Then authenticate the CLI (this opens a browser OAuth flow):
+**Do not commit these files.** Kaggle's competition rules permit academic / educational /
+non-commercial use of the data but prohibit redistributing it — `.gitignore` excludes
+`data/raw/` and every `.csv` under `data/` for exactly this reason. Never push them to a
+public repo.
 
-```bash
-kaggle auth login
-```
-
-### 2. Download the data
-
-```bash
-kaggle competitions download -c home-credit-default-risk -p data/raw
-python -c "import zipfile; zipfile.ZipFile('data/raw/home-credit-default-risk.zip').extractall('data/raw')"
-```
-
-Expected in `data/raw/`: `application_train.csv` (~166 MB), `bureau.csv` (~170 MB), plus the
-other competition tables.
-
-### 3. Build the database
+### 2. Build the database
 
 ```bash
 python src/load_to_duckdb.py
 ```
 
-Creates `data/processed/creditbridge.duckdb` with tables `application_train` and `bureau`.
+Creates `data/processed/creditbridge.duckdb` with tables `application_train`, `bureau`, and
+`previous_application`.
 
-### 4. Segment applicants
+### 3. Segment applicants
 
 ```bash
 python src/segment.py

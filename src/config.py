@@ -14,6 +14,7 @@ DUCKDB_PATH = PROCESSED_DIR / "creditbridge.duckdb"
 RAW_TABLES = {
     "application_train": RAW_DIR / "application_train.csv",
     "bureau": RAW_DIR / "bureau.csv",
+    "previous_application": RAW_DIR / "previous_application.csv",
 }
 
 EXT_SOURCE_COLS = ("EXT_SOURCE_1", "EXT_SOURCE_2", "EXT_SOURCE_3")

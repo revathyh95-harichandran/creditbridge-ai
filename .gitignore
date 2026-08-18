@@ -1,9 +1,10 @@
-# Data — never commit raw or processed credit data
-data/raw/*
+# Data — Kaggle competition rules permit academic/educational/non-commercial use
+# but prohibit redistributing the raw files, so these must never be committed.
+data/raw/
+data/**/*.csv
 data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
-*.csv
 *.zip
 *.parquet
 
