@@ -35,6 +35,8 @@ creditbridge-ai/
 ├── data/
 │   ├── raw/                  # Kaggle CSVs (git-ignored)
 │   └── processed/            # derived artefacts (git-ignored)
+├── dashboards/
+│   └── credit_risk_dashboard.pbix  # Power BI dashboard on dashboard_export.csv (git-ignored)
 ├── notebooks/
 │   └── 01_data_quality.ipynb # full DQ pass: % missing, skew, IQR outliers, cardinality
 ├── tests/                    # pytest suite
@@ -124,6 +126,15 @@ names — `file_type`, `defaulted`, `income`, `employment_years`, `age`, `family
 plus five non-bureau features (`owns_car`, `owns_realty`, `income_type`,
 `household_size`, `prior_applicant`) chosen from the fully-populated set identified in
 [reports/segment_findings.md](reports/segment_findings.md) §4.
+
+### 8. Power BI dashboard
+
+Built on `data/processed/dashboard_export.csv`, saved as `dashboards/credit_risk_dashboard.pbix`.
+Not tracked in git (see `.gitignore` — it embeds a full copy of the exported data in its
+internal model, same reasoning as the CSV/DuckDB files). When editing the report, use
+**File → Import locale = English (United States)** in Power BI Desktop's app-level
+Options and Settings — the source CSV uses `.` as the decimal separator, and a mismatched
+locale silently corrupts decimal columns (e.g. `employment_years`) on import.
 
 ## Findings
 

@@ -13,6 +13,13 @@ data/processed/*
 *.duckdb.wal
 *.db
 
+# Power BI — .pbix embeds a full copy of the imported data in its internal model,
+# same Kaggle redistribution concern as the CSVs it's built from. Binary and not
+# diff-friendly in git either way, so it stays local-only.
+dashboards/*.pbix
+dashboards/*.pbit
+!dashboards/.gitkeep
+
 # Secrets
 .env
 kaggle.json
