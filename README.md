@@ -72,6 +72,22 @@ python src/segment.py
 
 Writes the `applicant_segments` table and prints the size and default rate of each segment.
 
+## Findings
+
+Run on the full `application_train` population (307,511 applicants), joined against `bureau`:
+
+| segment | applicants | share | defaults | default rate |
+|---|---|---|---|---|
+| thin-file | 68,367 | 22.2% | 6,654 | 9.73% |
+| thick-file | 239,144 | 77.8% | 18,171 | 7.60% |
+| overall | 307,511 | 100.0% | 24,825 | 8.07% |
+
+Thin-file applicants — those with 0-1 bureau records and at least one missing `EXT_SOURCE`
+score — default at **1.28x** the thick-file rate (9.73% vs 7.60%), and make up 22.2% of the
+book. This is the population a conventional scorecard is effectively blind to: it isn't just
+under-documented, it's measurably riskier. Reproduce with `python src/segment.py` after
+building the database (step 2 below).
+
 ## Tests
 
 ```bash
