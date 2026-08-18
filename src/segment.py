@@ -9,6 +9,13 @@ Everyone else is **thick-file**. The point of the split is to isolate the applic
 conventional scorecard cannot see clearly, and compare their realised default rate against
 the well-documented majority.
 
+Reads from application_train_clean (src/clean.py), not the raw table: clean.py deliberately
+leaves EXT_SOURCE_1/2/3 NULL where missing (see its docstring), so the NULL-count check below
+is unaffected by cleaning and gives identical results either way — but application_train_clean
+is the canonical per-applicant feature table for everything downstream (see
+src/compare_segments.py), so segmentation is defined against it for consistency.
+
+    python src/clean.py    # first, if application_train_clean doesn't exist yet
     python src/segment.py
 """
 
@@ -34,7 +41,7 @@ def _missing_ext_source_expr(alias: str = "a") -> str:
 
 
 def build_segments(con: duckdb.DuckDBPyConnection, table: str = SEGMENT_TABLE) -> None:
-    """Create the per-applicant segment table from ``application_train`` + ``bureau``."""
+    """Create the per-applicant segment table from ``application_train_clean`` + ``bureau``."""
     con.execute(f"""
         CREATE OR REPLACE TABLE {table} AS
         WITH bureau_counts AS (
@@ -48,7 +55,7 @@ def build_segments(con: duckdb.DuckDBPyConnection, table: str = SEGMENT_TABLE) -
                 a.TARGET,
                 COALESCE(b.n_bureau_records, 0) AS n_bureau_records,
                 {_missing_ext_source_expr('a')} AS n_missing_ext_sources
-            FROM application_train a
+            FROM application_train_clean a
             LEFT JOIN bureau_counts b ON a.SK_ID_CURR = b.SK_ID_CURR
         )
         SELECT
@@ -133,6 +140,13 @@ def main() -> int:
         return 1
 
     with duckdb.connect(str(DUCKDB_PATH)) as con:
+        tables = {r[0] for r in con.execute("SHOW TABLES").fetchall()}
+        if "application_train_clean" not in tables:
+            print(
+                "application_train_clean not found.\nRun: python src/clean.py",
+                file=sys.stderr,
+            )
+            return 1
         build_segments(con)
         rows = segment_summary(con)
 

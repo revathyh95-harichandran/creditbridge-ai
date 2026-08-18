@@ -23,15 +23,19 @@ actually differs from the well-documented ("thick-file") majority.
 ```
 creditbridge-ai/
 ├── src/
-│   ├── config.py          # canonical paths
-│   ├── load_to_duckdb.py  # CSV -> DuckDB
-│   └── segment.py         # thin/thick-file flagging + segment stats
+│   ├── config.py             # canonical paths
+│   ├── load_to_duckdb.py     # CSV -> DuckDB
+│   ├── clean.py              # data-quality-driven cleaning -> application_train_clean
+│   ├── segment.py            # thin/thick-file flagging + segment stats
+│   └── compare_segments.py   # thin- vs thick-file comparison on cleaned data
 ├── data/
-│   ├── raw/               # Kaggle CSVs (git-ignored)
-│   └── processed/         # derived artefacts (git-ignored)
-├── notebooks/             # exploratory analysis
-├── tests/                 # pytest suite
-├── reports/               # generated output
+│   ├── raw/                  # Kaggle CSVs (git-ignored)
+│   └── processed/            # derived artefacts (git-ignored)
+├── notebooks/
+│   └── 01_data_quality.ipynb # full DQ pass: % missing, skew, IQR outliers, cardinality
+├── tests/                    # pytest suite
+├── reports/
+│   └── segment_findings.md   # cleaning decisions + segment comparison write-up
 ├── requirements.txt
 └── README.md
 ```
@@ -64,13 +68,45 @@ python src/load_to_duckdb.py
 Creates `data/processed/creditbridge.duckdb` with tables `application_train`, `bureau`, and
 `previous_application`.
 
-### 3. Segment applicants
+### 3. Run the data-quality pass (optional but recommended first)
+
+```bash
+jupyter nbconvert --to notebook --execute --inplace notebooks/01_data_quality.ipynb
+```
+
+Audits every feature in `application_train` — % missing, skewness, and IQR-flagged
+outliers for numeric columns; cardinality and % missing for categorical ones — before any
+cleaning decision is made. The findings from this pass drive every decision in step 4.
+
+### 4. Clean the data
+
+```bash
+python src/clean.py
+```
+
+Creates `application_train_clean`: median imputation for numeric columns, an explicit
+`'Missing'` category for categorical ones, IQR-detected outliers capped at the 1st/99th
+percentile, `EXT_SOURCE_1/2/3` missingness preserved (not imputed) as a signal, and the
+`DAYS_EMPLOYED` sentinel value resolved. Every decision, including the alternatives
+considered and rejected, is written up in [reports/segment_findings.md](reports/segment_findings.md).
+
+### 5. Segment applicants
 
 ```bash
 python src/segment.py
 ```
 
 Writes the `applicant_segments` table and prints the size and default rate of each segment.
+
+### 6. Compare segments on the cleaned data
+
+```bash
+python src/compare_segments.py
+```
+
+Compares thin-file vs thick-file on income, employment length, age, application channel,
+and which non-bureau features remain fully populated for thin-file applicants. Full
+write-up in [reports/segment_findings.md](reports/segment_findings.md).
 
 ## Findings
 
@@ -88,10 +124,21 @@ book. This is the population a conventional scorecard is effectively blind to: i
 under-documented, it's measurably riskier. Reproduce with `python src/segment.py` after
 building the database (step 2 below).
 
+They also earn less (median $135,000 vs $157,500) and are slightly more often retired
+(20.2% vs 17.4%) — but are essentially the **same age** as thick-file applicants, and are
+**fully documented on every non-bureau dimension checked**: asset ownership, family status,
+contact info, employment tenure, and 93.5% have prior application history with this same
+lender. The gap is narrow and specific — bureau depth and external credit scores — not a
+general data problem. Full analysis, including every cleaning decision and the
+alternatives ruled out along the way, in [reports/segment_findings.md](reports/segment_findings.md).
+
 ## Tests
 
 ```bash
 pytest -q
 ```
 
-The segmentation tests run against a synthetic in-memory DuckDB, so they need no downloaded data.
+24 tests against synthetic in-memory DuckDB tables — segmentation boundary conditions and
+cleaning decisions (median imputation, `EXT_SOURCE` missingness preservation, the
+`DAYS_EMPLOYED` sentinel fix, degenerate-IQR handling, categorical fill). No downloaded
+data required.

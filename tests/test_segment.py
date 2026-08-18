@@ -25,7 +25,7 @@ APPLICANTS = [
 def con():
     con = duckdb.connect(":memory:")
     con.execute("""
-        CREATE TABLE application_train (
+        CREATE TABLE application_train_clean (
             SK_ID_CURR INTEGER, TARGET INTEGER,
             EXT_SOURCE_1 DOUBLE, EXT_SOURCE_2 DOUBLE, EXT_SOURCE_3 DOUBLE
         )
@@ -34,7 +34,7 @@ def con():
 
     bureau_id = 1000
     for sk_id, target, e1, e2, e3, n_bureau, _ in APPLICANTS:
-        con.execute("INSERT INTO application_train VALUES (?, ?, ?, ?, ?)",
+        con.execute("INSERT INTO application_train_clean VALUES (?, ?, ?, ?, ?)",
                     [sk_id, target, e1, e2, e3])
         for _ in range(n_bureau):
             bureau_id += 1
