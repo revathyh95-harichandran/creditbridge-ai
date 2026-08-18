@@ -136,6 +136,39 @@ internal model, same reasoning as the CSV/DuckDB files). When editing the report
 Options and Settings — the source CSV uses `.` as the decimal separator, and a mismatched
 locale silently corrupts decimal columns (e.g. `employment_years`) on import.
 
+## Dashboard Insights — What I Found
+
+Notes on what the dashboard (`dashboards/credit_risk_dashboard.pbix`) actually shows,
+written in plain terms so it still makes sense on a re-read months from now.
+
+**What the numbers say:**
+
+- Out of 308K applicants, 68K (22%) are "thin-file" — basically, people we don't have
+  much credit history on. That's not a small group, it's more than 1 in 5 applicants.
+- These thin-file people do default more often — 9.7% of the time vs 7.6% for everyone
+  else. That's a real difference, but it's not huge. It's not like thin-file people are
+  twice as risky or something — they're a bit riskier, not a lot.
+- When I dug into the dashboard a bit more, the usual stuff still applies here too —
+  people who've had their job longer, and people who are a bit older (45+), default
+  less. Same pattern you'd expect for anyone, thin-file or not. So it's not like these
+  people are some weird unpredictable group — the normal signals still work on them.
+- Here's the interesting part: even though we don't have much bureau/credit history on
+  these people, we DO have basically everything else — their income, what kind of job
+  they have, family details, whether they own a car or house, and whether they've
+  borrowed from us before (93.5% of them have!). So it's not that we know nothing about
+  them, we just don't have the one specific thing (credit history).
+
+**What I'd actually suggest doing:**
+
+1. Don't auto-reject people just because they're thin-file. We have enough other info
+   on them to make a real decision instead of guessing.
+2. If we want to test this out, start with the safer-looking thin-file people first —
+   longer job history, 45+, already applied with us before. These already look closer
+   to the "safe" group in the numbers.
+3. Whatever we try, actually check afterward if it worked — compare the real default
+   rate of whoever we approve against that 9.7% number, to make sure we're not just
+   letting in more risk than we think.
+
 ## Findings
 
 Run on the full `application_train` population (307,511 applicants), joined against `bureau`:
