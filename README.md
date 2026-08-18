@@ -4,6 +4,9 @@ Credit risk analytics on the [Home Credit Default Risk](https://www.kaggle.com/c
 dataset, with a focus on **thin-file applicants** — borrowers who are hard to score because
 they carry almost no credit-bureau history and incomplete external credit scores.
 
+Non-technical? Start with [reports/analyst_summary.md](reports/analyst_summary.md) — a
+one-page executive summary, no code or jargon.
+
 ## The thin-file question
 
 Traditional scorecards lean on bureau depth and external scores. Applicants without them are
@@ -27,7 +30,8 @@ creditbridge-ai/
 │   ├── load_to_duckdb.py     # CSV -> DuckDB
 │   ├── clean.py              # data-quality-driven cleaning -> application_train_clean
 │   ├── segment.py            # thin/thick-file flagging + segment stats
-│   └── compare_segments.py   # thin- vs thick-file comparison on cleaned data
+│   ├── compare_segments.py   # thin- vs thick-file comparison on cleaned data
+│   └── export_dashboard.py   # cleaned + segmented data -> dashboard_export.csv
 ├── data/
 │   ├── raw/                  # Kaggle CSVs (git-ignored)
 │   └── processed/            # derived artefacts (git-ignored)
@@ -35,7 +39,8 @@ creditbridge-ai/
 │   └── 01_data_quality.ipynb # full DQ pass: % missing, skew, IQR outliers, cardinality
 ├── tests/                    # pytest suite
 ├── reports/
-│   └── segment_findings.md   # cleaning decisions + segment comparison write-up
+│   ├── segment_findings.md   # cleaning decisions + segment comparison write-up
+│   └── analyst_summary.md    # one-page, non-technical executive summary
 ├── requirements.txt
 └── README.md
 ```
@@ -107,6 +112,18 @@ python src/compare_segments.py
 Compares thin-file vs thick-file on income, employment length, age, application channel,
 and which non-bureau features remain fully populated for thin-file applicants. Full
 write-up in [reports/segment_findings.md](reports/segment_findings.md).
+
+### 7. Export the dashboard-ready dataset
+
+```bash
+python src/export_dashboard.py
+```
+
+Writes `data/processed/dashboard_export.csv` (307,511 rows) with business-readable column
+names — `file_type`, `defaulted`, `income`, `employment_years`, `age`, `family_status`,
+plus five non-bureau features (`owns_car`, `owns_realty`, `income_type`,
+`household_size`, `prior_applicant`) chosen from the fully-populated set identified in
+[reports/segment_findings.md](reports/segment_findings.md) §4.
 
 ## Findings
 
