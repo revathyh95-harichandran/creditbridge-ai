@@ -48,6 +48,7 @@ creditbridge-ai/
 │   ├── segment_findings.md   # cleaning decisions + segment comparison write-up
 │   ├── analyst_summary.md    # one-page, non-technical executive summary
 │   └── figures/              # model-findings charts used in this README
+├── AI_USAGE.md               # how I used an AI assistant in this project
 ├── requirements.txt
 └── README.md
 ```
@@ -630,3 +631,14 @@ pytest -q
   becomes a model input, plus its feature maths and "safest X%" calculations
 - the evaluation helpers: accuracy trap, precision/recall, KS, calibration groups,
   bootstrap range, subgroup AUC and the fairness table
+
+## AI Usage Declaration
+
+I used **Claude Code** (an AI coding assistant made by Anthropic) as an assistant in this
+project. The research question, the choice of dataset, the analysis plan and all final
+decisions are my own. I wrote every prompt, reviewed every output, and checked the
+results before accepting them. The tool mainly helped with writing code, drafting
+documentation and charts, and handling routine tasks. That gave me more time to
+brainstorm, ask analytical questions and explore the data in more depth. Where the tool
+suggested an approach, I evaluated it and decided whether to use it. A full breakdown is
+in [AI_USAGE.md](AI_USAGE.md).
