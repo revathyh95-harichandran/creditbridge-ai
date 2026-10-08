@@ -39,7 +39,8 @@ creditbridge-ai/
 │   ├── raw/                  # Kaggle CSVs (git-ignored)
 │   └── processed/            # derived artefacts (git-ignored)
 ├── dashboards/
-│   └── credit_risk_dashboard.pbix  # Power BI dashboard on dashboard_export.csv (git-ignored)
+│   ├── credit_risk_dashboard.pbix  # Power BI dashboard on dashboard_export.csv (git-ignored)
+│   └── dashboard_overview.png      # screenshot of the dashboard, shown in this README
 ├── notebooks/
 │   └── 01_data_quality.ipynb # full DQ pass: % missing, skew, IQR outliers, cardinality
 ├── tests/                    # pytest suite
@@ -170,6 +171,26 @@ Re-draws all 12 charts in `reports/figures/` from the data and the model.
 
 Notes on what the dashboard (`dashboards/credit_risk_dashboard.pbix`) actually shows,
 written in plain terms so it still makes sense on a re-read months from now.
+
+![Power BI dashboard: 308K applicants, 22% thin-file, thin-file default rate 9.7% vs 7.6% for thick-file, with age, income and family-status filters and a decomposition tree of the 24,825 defaulters](dashboards/dashboard_overview.png)
+
+**What's on it:**
+
+- **Top row:** total applicants (308K), the share who are thin-file (22%), how much more
+  often thin-file people default (0.28 = 28% more), and the overall default rate (8%).
+  Power BI writes decimals with a comma, so 0,22 just means 0.22.
+- **Donut:** the split, 68K thin-file vs 239K thick-file.
+- **Bar chart:** the default rate, 9.7% for thin-file vs 7.6% for thick-file.
+- **Filters on the right:** age bracket, income bracket and family status. Click one and
+  every chart on the page updates to just that group.
+- **Decomposition tree (bottom):** starts from all 24,825 people who defaulted and lets you
+  click down one level at a time: file type → years employed → age → income type →
+  household size → owns a car. The path in the picture follows thin-file defaulters with
+  about 4 years in their job, aged 45+, who are pensioners in two-person households.
+
+Every number on it was checked against the cleaned data. (The `.pbix` file itself isn't
+on GitHub because it stores a full copy of the Kaggle data inside it, which the
+competition rules don't allow sharing. The screenshot only shows totals and percentages.)
 
 **What the numbers say:**
 
