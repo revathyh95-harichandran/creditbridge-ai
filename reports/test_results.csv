@@ -1,0 +1,7 @@
+model,CV ROC-AUC,test ROC-AUC,test PR-AUC,cut-off (training),"test cost / 1,000",saving vs approve-all
+logistic regression,0.74929,0.7507,0.23996,0.16,341.60935,0.15368
+scorecard (5 fields),0.73335,0.73434,0.2199,0.17,351.86901,0.12826
+tree depth 6,0.71377,0.71309,0.19213,0.165,364.03102,0.09813
+LDA,0.74841,0.74949,0.23682,0.17,342.06461,0.15255
+linear SVM,0.74914,0.75028,0.23907,0.16,341.10531,0.15492
+gradient boosting (reference),0.75378,0.75755,0.24488,0.17,337.46321,0.16395

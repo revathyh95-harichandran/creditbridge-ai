@@ -1,0 +1,2 @@
+,ROC-AUC,ROC-AUC sd,PR-AUC,Brier,mean predicted,cost @0.5,cost @theory,lowest cost,best cut-off,approve-all cost,fit seconds
+scorecard (5 fields),0.73335,0.00235,0.21243,0.06929,0.08073,401.82434,356.33801,355.63885,0.171,403.64541,0.08457

@@ -1,0 +1,67 @@
+{
+  "final_model": "logistic regression",
+  "explainable_choice": "logistic regression",
+  "black_box_gap": 0.0045,
+  "decided_before_test": true,
+  "cutoffs": {
+    "3:1": 0.245,
+    "5:1": 0.16,
+    "10:1": 0.09
+  },
+  "cv_folds_with_saving": {
+    "3:1": 5,
+    "5:1": 5,
+    "10:1": 5
+  },
+  "test_roc_auc": 0.7507,
+  "cv_roc_auc": 0.7493,
+  "test_cost_per_1000": 341.6,
+  "approve_everyone_cost": 403.6,
+  "saving_per_1000": 62.0,
+  "saving_95_range": [
+    54.8,
+    69.5
+  ],
+  "test_by_ratio": {
+    "3:1": {
+      "cut-off": 0.245,
+      "model": 226.526,
+      "approve everyone": 242.183
+    },
+    "5:1": {
+      "cut-off": 0.16,
+      "model": 341.609,
+      "approve everyone": 403.639
+    },
+    "10:1": {
+      "cut-off": 0.09,
+      "model": 546.461,
+      "approve everyone": 807.278
+    }
+  },
+  "test_confusion_per_1000": [
+    [
+      826.7,
+      92.6
+    ],
+    [
+      49.8,
+      30.9
+    ]
+  ],
+  "fairness": {
+    "women": {
+      "applicants": 40561.0,
+      "default rate": 0.0699,
+      "approval rate": 0.8991,
+      "default rate among approved": 0.0516
+    },
+    "men": {
+      "applicants": 20940.0,
+      "default rate": 0.1017,
+      "approval rate": 0.8327,
+      "default rate among approved": 0.0678
+    }
+  },
+  "theoretical_cutoff": 0.167
+}

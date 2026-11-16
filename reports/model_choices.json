@@ -1,0 +1,11 @@
+{
+  "tree_depth": 6,
+  "scorecard_fields": [
+    "EXT_SOURCE_3",
+    "EXT_SOURCE_2",
+    "EXT_SOURCE_1",
+    "CREDIT_TO_GOODS",
+    "EMPLOYED_YEARS"
+  ],
+  "scorecard_C": 0.0005
+}
