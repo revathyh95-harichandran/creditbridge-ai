@@ -1,0 +1,12 @@
+line-length = 150
+target-version = "py311"
+
+[lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E741"]
+
+[lint.isort]
+known-first-party = ["config", "data", "costs", "cv", "pipeline", "style", "compare_models", "scorecard",
+                     "evaluate", "clusters", "model_thin_file", "validate_model", "clean", "segment",
+                     "compare_segments", "export_dashboard", "load_to_duckdb", "make_charts", "prep_experiments",
+                     "fake_data"]

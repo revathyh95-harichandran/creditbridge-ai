@@ -2,7 +2,7 @@
 
 **Author:** Revathy Harichandran
 **AI tool used:** Claude Code (Anthropic)
-**Last updated:** October 2026
+**Last updated:** November 2026 (version 2: leak-free ML pipeline)
 
 ## 1. Summary
 
@@ -125,3 +125,30 @@ a model can be unfair to a group even when that group's details aren't an input
 | Interpretation and recommendations | ✔ Decided them | Drafted the wording |
 | Documentation | ✔ Reviewed and approved | Drafted it |
 | GitHub | ✔ Created repo, signed in | Ran Git commands |
+
+## 9. Version 2 (November 2026): the ML-pipeline upgrade
+
+After taking a data-mining course, I decided to upgrade this project with the methods I had
+learned there: a leak-free preparation pipeline, a cost-based decision, a fair model
+comparison, a readable scorecard, a one-time test, applicant segments and a small app.
+
+- **What I did:** I decided to upgrade the project and what it should show. I reviewed the
+  differences between my course version and this repository and approved a 12-step upgrade
+  plan (which ideas to bring across, what to leave out, the order of work). I kept the rules
+  from version 1: the Kaggle data and anything trained on it stay out of the repository, and
+  nothing is pushed until I have reviewed it.
+- **What the AI tool did:** to save time, I asked it to carry out the agreed plan in one go
+  rather than step by step. It adapted the code from my course work into `src/`, wrote the
+  new tests and the automatic test workflow, ran every script, and drafted the new README
+  sections. I reviewed the finished result before publishing.
+- **The leak:** in version 1, the cleaning statistics (medians, caps) were computed on all
+  rows before the train/test split. Version 2 fixes this by fitting all preparation inside
+  the training folds only. Re-running the thin-file model this way gave the same test AUC
+  (0.685), so the original result stands.
+
+| Part of version 2 | Me | AI tool (Claude Code) |
+|---|---|---|
+| Decision to upgrade, choice of methods | ✔ Did it (from my course work) | — |
+| Upgrade plan | ✔ Reviewed and approved | Drafted it |
+| Code, tests, CI workflow | ✔ Reviewed | Wrote and ran them |
+| Results and interpretation | ✔ Reviewed and approved | Drafted the wording |
