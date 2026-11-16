@@ -49,7 +49,6 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from config import DUCKDB_PATH
 from model_thin_file import (
     FEATURES,
-    NUMERIC_FEATURES,
     SEED,
     TEST_SHARE,
     default_rate_of_riskiest,

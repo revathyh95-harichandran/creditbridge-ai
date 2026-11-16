@@ -27,6 +27,11 @@ Deliberately left out:
   * building descriptors (*_AVG / *_MODE / *_MEDI) and OWN_CAR_AGE: 50-70% missing in
     the raw data, so after median imputation they mostly carry noise
 
+Leak-free since the ML-pipeline upgrade: rows are read RAW from application_train (only the
+fixed 365243 rule is applied in SQL); capping, median filling and scaling are learned inside
+the model pipeline, on training rows only. Earlier versions read the pre-cleaned table, whose
+medians and caps had been computed on all rows, including the test rows.
+
 Two models are compared with 3-fold cross-validation on the training set: a logistic
 regression (simple, explainable) and a gradient-boosted tree model. The better one is
 then scored once on a held-out 25% test set it has never seen.
@@ -58,6 +63,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
 from config import DUCKDB_PATH
+from pipeline import OutlierCapper
 
 SEED = 42
 TEST_SHARE = 0.25
@@ -124,6 +130,8 @@ LOAD_QUERY = """
     )
     SELECT
         c.SK_ID_CURR, c.TARGET,
+        -- fixed rule (learns nothing): 365243 means "not employed", not a number of days
+        CASE WHEN c.DAYS_EMPLOYED = 365243 THEN 1 ELSE 0 END AS DAYS_EMPLOYED_IS_RETIRED,
         CAST(c.EXT_SOURCE_1 AS DOUBLE) AS EXT_SOURCE_1,
         CAST(c.EXT_SOURCE_2 AS DOUBLE) AS EXT_SOURCE_2,
         CAST(c.EXT_SOURCE_3 AS DOUBLE) AS EXT_SOURCE_3,
@@ -134,8 +142,7 @@ LOAD_QUERY = """
         CAST(c.AMT_ANNUITY AS DOUBLE) AS AMT_ANNUITY,
         CAST(c.AMT_GOODS_PRICE AS DOUBLE) AS AMT_GOODS_PRICE,
         CAST(c.DAYS_BIRTH AS DOUBLE) AS DAYS_BIRTH,
-        CAST(c.DAYS_EMPLOYED AS DOUBLE) AS DAYS_EMPLOYED,
-        c.DAYS_EMPLOYED_IS_RETIRED,
+        CAST(CASE WHEN c.DAYS_EMPLOYED = 365243 THEN NULL ELSE c.DAYS_EMPLOYED END AS DOUBLE) AS DAYS_EMPLOYED,
         CAST(c.DAYS_REGISTRATION AS DOUBLE) AS DAYS_REGISTRATION,
         CAST(c.DAYS_ID_PUBLISH AS DOUBLE) AS DAYS_ID_PUBLISH,
         CAST(c.DAYS_LAST_PHONE_CHANGE AS DOUBLE) AS DAYS_LAST_PHONE_CHANGE,
@@ -148,7 +155,7 @@ LOAD_QUERY = """
         COALESCE(p.prev_app_count, 0) AS prev_app_count,
         COALESCE(p.prev_approved, 0) AS prev_approved,
         COALESCE(p.prev_refused, 0) AS prev_refused
-    FROM application_train_clean c
+    FROM application_train c
     JOIN applicant_segments s USING (SK_ID_CURR)
     LEFT JOIN prev p USING (SK_ID_CURR)
     WHERE s.segment = ?
@@ -177,14 +184,17 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     for col in NUMERIC_FEATURES:
         out[col] = out[col].astype(float)
     for col in CATEGORICAL_FEATURES:
-        out[col] = out[col].astype(str)
+        out[col] = out[col].fillna("Missing").astype(str)
     return out
 
 
 def logistic_model(numeric: list[str] = NUMERIC_FEATURES) -> Pipeline:
-    # The imputer only matters for the EXT_SOURCE benchmark; every thin-file model input
-    # is already fully populated by src/clean.py.
-    numeric_steps = Pipeline([("impute", SimpleImputer(strategy="median")), ("scale", StandardScaler())])
+    # Cap -> fill -> scale, all learned on the training rows passed to fit (no leakage).
+    numeric_steps = Pipeline([
+        ("cap", OutlierCapper()),
+        ("impute", SimpleImputer(strategy="median")),
+        ("scale", StandardScaler()),
+    ])
     prep = ColumnTransformer([
         ("cat", OneHotEncoder(handle_unknown="ignore", min_frequency=50), CATEGORICAL_FEATURES),
         ("num", numeric_steps, numeric),
@@ -282,7 +292,7 @@ def main() -> int:
 
     with duckdb.connect(str(DUCKDB_PATH), read_only=True) as con:
         tables = {r[0] for r in con.execute("SHOW TABLES").fetchall()}
-        missing = {"application_train_clean", "applicant_segments", "previous_application"} - tables
+        missing = {"application_train", "applicant_segments", "previous_application"} - tables
         if missing:
             print(f"Missing tables: {missing}.\nRun: python src/clean.py && python src/segment.py", file=sys.stderr)
             return 1
